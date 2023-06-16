@@ -26,6 +26,54 @@ class Host:
     def _should_split_row(self, hostnames):
         return self.platform.is_windows() and len(hostnames) >= 9
 
+    def update(self, mappings: dict):
+        mappings = {k: {'new': True, **v} for (k, v) in mappings.items()}
+        backupfile = self._keep_history()
+        lines = self._get_host_file_lines()
+        with open(self.hostFile, 'w') as output:
+            for line in lines:
+                if line.startswith('#') or line == '\n':
+                    output.write(line.strip() + '\n')
+                    continue
+                segment = line.split()
+                leave_as_is = True
+                if segment[1] in mappings:
+                    if not mappings[segment[1]]['error']:
+                        leave_as_is = False
+                        mappings[segment[1]]['new'] = False
+                        output.write(mappings[segment[1]]['ip'])
+                        output.write('\t')
+                        output.write(' '.join(segment[1:]))
+                        output.write('\n')
+                    else:
+                        print(f"Could not add host '{segment[1]}' " +
+                              f"because: {mappings[segment[1]]['error_msg']}")
+                if leave_as_is:
+                    output.write(segment[0])
+                    output.write('\t')
+                    output.write(' '.join(segment[1:]))
+                    output.write('\n')
+
+            def add_new_hosts(item):
+                if item['new']:
+                    if not item['error']:
+                        output.write(item['ip'])
+                        output.write('\t')
+                        output.write(item['hostname'])
+                        output.write('\n')
+                        return "Entry created: " + \
+                               f"{item['ip']} {item['hostname']}"
+                    else:
+                        return "Entry has an error: " + \
+                               f"{item['ip']} {item['hostname']} " + \
+                               f"-> {item['error_msg']}"
+                return f"Entry exist: {item['ip']} {item['hostname']}"
+
+            value = list(map(lambda x: add_new_hosts(x[1]), mappings.items()))
+            print(value)
+
+        return True, backupfile
+
     def add(self, hostname, ip='127.0.0.1'):
         if self.exists(hostname, ip):
             return False, None
@@ -35,10 +83,12 @@ class Host:
         with open(self.hostFile, 'w') as output:
             for line in lines:
                 if line.startswith('#') or line == '\n':
-                    output.write(line.strip()+ '\n')
+                    output.write(line.strip() + '\n')
                 else:
                     segment = line.split()
-                    if ip == segment[0] and not self._should_split_row(segment[1:]) and not added:
+                    if ip == segment[0] and \
+                       not self._should_split_row(segment[1:]) and \
+                       not added:
                         segment.append(hostname)
                         added = True
                     output.write(segment[0])
@@ -83,7 +133,8 @@ class Host:
                 segment = line.split()
                 if line.startswith('#') or line == '\n':
                     continue
-                if hostname in segment[1:] and (ip is None or ip == segment[0]):
+                if hostname in segment[1:] and \
+                   (ip is None or ip == segment[0]):
                     return True
             else:
                 return False

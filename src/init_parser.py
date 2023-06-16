@@ -19,7 +19,7 @@ def init_parser(file_path):
         help="Run nmap to discover all the 256 devices in the network",
     )
     parser.add_argument(
-        "-if", "--input",
+        "-in", "--input",
         default='hostname_mac.txt',
         required=False,
         help="Input file with hostname and MAC addresses. " +
@@ -34,6 +34,8 @@ def init_parser(file_path):
     )
     group.add_argument("-s", "--show", action="store_true",
                        help="Show the content of hosts file")
+    group.add_argument("-u", "--update", action="store_true",
+                       help="Update the content of hosts file from gathered IPs in input file")
     group.add_argument("-c", "--check", metavar='HOSTNAME', nargs='+',
                        help="Check if the host name existed in the host file")
     group.add_argument("-i", "--insert", metavar='HOSTNAME[:IP]', nargs='+',

@@ -16,6 +16,8 @@ class PyNetTools:
         self.parser = init_parser(self.host.hostFile)
         self.args = self.parser.parse_args()
         self.input_file = self.args.input
+        self.debug = self.args.debug == '1'
+        self.mappings = {}
 
     def std_response(self):
         return {
@@ -43,7 +45,7 @@ class PyNetTools:
     def run_nmap(self):
         response = self.std_response()
         local_ip = self.get_local_ip()
-        if self.args.debug == '1':
+        if self.debug:
             print(f'Platform: {self.platform.name}')
             print(F'Own IP: {local_ip}')
         start_ip_for_nmap = self.get_start_ip(local_ip)
@@ -58,7 +60,7 @@ class PyNetTools:
 
     def cmd_execution(self, cmd):
         response = self.std_response()
-        if self.args.debug == '1':
+        if self.debug:
             print(f'Running command: {cmd} ...')
         try:
             response['output'] = subprocess.check_output(
@@ -83,7 +85,7 @@ class PyNetTools:
             response['error_msg'] = "ERROR: mac address must be specified"
             return response
 
-        cmd = f'arp -a | findstr "{mac_addr}" '
+        cmd = f'arp -a | grep "{mac_addr}" '
         if self.platform.is_mac:
             mac_addr = mac_addr.replace(':0', ":").lower()
             cmd = f'arp -a | grep "{mac_addr}" '
@@ -94,7 +96,7 @@ class PyNetTools:
             return response
 
         returned_output = cmd_response['output']
-        if self.args.debug == '1':
+        if self.debug:
             print(returned_output)
 
         parse = str(returned_output).split(' ', 1)
@@ -122,7 +124,7 @@ class PyNetTools:
             print(str(err))
             return None
 
-    def list_input_entries(self):
+    def populate_input_entries(self):
         lines = self._get_input_file_lines()
         if not lines:
             print(f'Cannot read file {self.input_file}')
@@ -143,20 +145,54 @@ class PyNetTools:
             mac_addr = segment[0]
             hostname = segment[1]
             ip_response = self.get_ip_from_mac(mac_addr)
+            error = False
+            error_msg = None
             ip = ip_response['output']
             if ip_response['error']:
-                print(ip_response['error_msg'])
-            else:
-                print(f'H: {hostname}, MAC: {mac_addr}, IP: {ip}')
+                error = True
+                error_msg = ip_response['error_msg']
+            self.mappings[hostname] = {
+                'hostname': hostname,
+                'mac_addr': mac_addr,
+                'ip': ip,
+                'error': error,
+                'error_msg': error_msg,
+            }
+            if self.debug:
+                print(
+                    f'Host: {hostname}, MAC address: {mac_addr}, ' +
+                    f'ERROR: {error_msg}' if error
+                    else f'IP: {ip}'
+                )
         return
 
     def print_highlight(*a_list):
         for each in a_list:
             print(each)
 
+    def list_input_entries(self):
+        if len(self.mappings) == 0:
+            self.populate_input_entries()
+        # self.print_highlight(*)
+        for hostname, item in self.mappings.items():
+            # print(item)
+            print(
+                f"Host: {hostname}, " +
+                f"MAC address: {item['mac_addr']}, " +
+                (f"{item['error_msg']}" if item['error']
+                 else f"IP: {item['ip']}")
+            )
+
+    def update_from_input_entries(self):
+        if len(self.mappings) == 0:
+            self.populate_input_entries()
+        self.host.update(self.mappings)
+
     def main(self):
         if self.args.list:
             self.list_input_entries()
+        elif self.args.update:
+            self.update_from_input_entries()
         elif self.args.show:
             content = self.host.list()
             self.print_highlight(*content)
@@ -170,7 +206,9 @@ class PyNetTools:
                 arg = each.split(':')
                 result = self.host.add(*arg)
                 if result[0]:
-                    self.print_highlight('> inserted ' + each + ', backup file: ' + result[1])
+                    self.print_highlight(
+                        '> inserted ' + each + ', backup file: ' + result[1]
+                    )
                 else:
                     self.print_highlight('> failed to insert ' + each)
         elif self.args.remove:

@@ -28,6 +28,9 @@ CHANGELOG.md file created.
 ### Changes
 "get_ip_from_mac_addr.py" renamed to "pynettools_main.py".
 
+### Fix
+self.platform.is_mac is a method, not a property.
+
 
 ## 0.1.1 (2023-06-16)
 ---

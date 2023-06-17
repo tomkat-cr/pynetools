@@ -61,7 +61,7 @@ class PyNetTools:
         response = self.std_response()
         local_ip = self.get_local_ip()
         if self.debug:
-            print(f'Platform: {self.platform.name}')
+            print(f'Platform: {self.platform.name()}')
             print(F'Own IP: {local_ip}')
         start_ip_for_nmap = self.get_start_ip(local_ip)
         cmd = f'nmap -v -sn {start_ip_for_nmap}/24'
@@ -81,7 +81,7 @@ class PyNetTools:
             return response
 
         cmd = f'arp -a | grep "{mac_addr}" '
-        if self.platform.is_mac:
+        if self.platform.is_mac():
             mac_addr = mac_addr.replace(':0', ":").lower()
             cmd = f'arp -a | grep "{mac_addr}" '
         cmd_response = self.cmd_execution(cmd)
@@ -95,7 +95,7 @@ class PyNetTools:
             print(returned_output)
 
         parse = str(returned_output).split(' ', 1)
-        if self.platform.is_mac:
+        if self.platform.is_mac():
             ip = parse[1].split('(')[1].split(')')[0]
             result = ip
         else:

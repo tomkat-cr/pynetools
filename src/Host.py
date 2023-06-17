@@ -1,6 +1,6 @@
 import datetime
 from shutil import copyfile
-from Platform import Platform
+from src.Platform import Platform
 
 
 # Reference:

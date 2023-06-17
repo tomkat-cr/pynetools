@@ -1,2 +1,3 @@
+# hostname_mac-example.txt
 MAC_ADDRESS1 HOSTNAME1
 MAC_ADDRESS2 HOSTNAME2

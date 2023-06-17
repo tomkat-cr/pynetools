@@ -3,9 +3,9 @@ import platform
 import socket
 import subprocess
 
-from Platform import Platform
-from Host import Host
-from init_parser import init_parser
+from src.Platform import Platform
+from src.Host import Host
+from src.init_parser import init_parser
 
 
 class PyNetTools:
@@ -25,6 +25,21 @@ class PyNetTools:
             'error_msg': '',
             'output': '',
         }
+
+    def cmd_execution(self, cmd):
+        response = self.std_response()
+        if self.debug:
+            print(f'Running command: {cmd} ...')
+        try:
+            response['output'] = subprocess.check_output(
+                (cmd),
+                shell=True,
+                stderr=subprocess.STDOUT
+            )
+        except Exception as err:
+            response['error'] = True
+            response['error_msg'] = str(err)
+        return response
 
     def get_start_ip(self, ip):
         ip_split = ip.split('.')
@@ -58,27 +73,7 @@ class PyNetTools:
             response['output'] = cmd_response['output']
         return response
 
-    def cmd_execution(self, cmd):
-        response = self.std_response()
-        if self.debug:
-            print(f'Running command: {cmd} ...')
-        try:
-            response['output'] = subprocess.check_output(
-                (cmd),
-                shell=True,
-                stderr=subprocess.STDOUT
-            )
-        except Exception as err:
-            response['error'] = True
-            response['error_msg'] = str(err)
-        return response
-
     def get_ip_from_mac(self, mac_addr):
-        # mac_addr = None
-        # if len(sys.argv) > 1:
-        #     mac_addr = sys.argv[1]
-        # if len(sys.argv) > 2 and sys.argv[2].lower() == '--debug':
-        #     self.args.debug = True
         response = self.std_response()
         if not mac_addr:
             response['error'] = True
@@ -166,16 +161,14 @@ class PyNetTools:
                 )
         return
 
-    def print_highlight(*a_list):
+    def print_all(*a_list):
         for each in a_list:
             print(each)
 
     def list_input_entries(self):
         if len(self.mappings) == 0:
             self.populate_input_entries()
-        # self.print_highlight(*)
         for hostname, item in self.mappings.items():
-            # print(item)
             print(
                 f"Host: {hostname}, " +
                 f"MAC address: {item['mac_addr']}, " +
@@ -195,29 +188,29 @@ class PyNetTools:
             self.update_from_input_entries()
         elif self.args.show:
             content = self.host.list()
-            self.print_highlight(*content)
+            self.print_all(*content)
         elif self.args.check:
-            self.print_highlight('# Search result:')
+            self.print_all('# Search result:')
             result = self.host.check(*self.args.check)
-            self.print_highlight(*result)
+            self.print_all(*result)
         elif self.args.insert:
-            self.print_highlight('# Insert mapping:')
+            self.print_all('# Insert mapping:')
             for each in self.args.insert:
                 arg = each.split(':')
                 result = self.host.add(*arg)
                 if result[0]:
-                    self.print_highlight(
+                    self.print_all(
                         '> inserted ' + each + ', backup file: ' + result[1]
                     )
                 else:
-                    self.print_highlight('> failed to insert ' + each)
+                    self.print_all('> failed to insert ' + each)
         elif self.args.remove:
-            self.print_highlight('# Remove mapping:')
+            self.print_all('# Remove mapping:')
             for each in self.args.remove:
                 result = self.host.remove(each)
                 if result[0]:
-                    self.print_highlight('## removed ' + each + ', backup file: ' + result[1])
+                    self.print_all('## removed ' + each + ', backup file: ' + result[1])
                 else:
-                    self.print_highlight('## Not found ' + each)
+                    self.print_all('## Not found ' + each)
         else:
             self.parser.print_help()

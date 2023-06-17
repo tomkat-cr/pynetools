@@ -1,2 +1,2 @@
-# pynetools
+# pynettools
 Net Tools in Python

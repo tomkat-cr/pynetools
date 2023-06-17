@@ -1,4 +1,4 @@
-from PyNetTools import PyNetTools
+from src.PyNetTools import PyNetTools
 
 
 if __name__ == "__main__":

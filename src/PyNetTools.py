@@ -80,10 +80,11 @@ class PyNetTools:
             response['error_msg'] = "ERROR: mac address must be specified"
             return response
 
-        cmd = f'arp -a | grep "{mac_addr}" '
         if self.platform.is_mac():
             mac_addr = mac_addr.replace(':0', ":").lower()
-            cmd = f'arp -a | grep "{mac_addr}" '
+        if self.platform.is_linux():
+            mac_addr = mac_addr.lower()
+        cmd = f'arp -a | grep "{mac_addr}" '
         cmd_response = self.cmd_execution(cmd)
         if cmd_response['error']:
             response['error'] = True

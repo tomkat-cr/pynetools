@@ -31,6 +31,8 @@ CHANGELOG.md file created.
 ### Fix
 self.platform.is_mac is a method, not a property.
 mac_addr to lower case also when it's linux.
+nmap () substitution is also made in linux.
+Debug platform print moved to main().
 
 
 ## 0.1.1 (2023-06-16)

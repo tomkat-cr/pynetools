@@ -60,9 +60,6 @@ class PyNetTools:
     def run_nmap(self):
         response = self.std_response()
         local_ip = self.get_local_ip()
-        if self.debug:
-            print(f'Platform: {self.platform.name()}')
-            print(F'Own IP: {local_ip}')
         start_ip_for_nmap = self.get_start_ip(local_ip)
         cmd = f'nmap -v -sn {start_ip_for_nmap}/24'
         cmd_response = self.cmd_execution(cmd)
@@ -84,6 +81,7 @@ class PyNetTools:
             mac_addr = mac_addr.replace(':0', ":").lower()
         if self.platform.is_linux():
             mac_addr = mac_addr.lower()
+
         cmd = f'arp -a | grep "{mac_addr}" '
         cmd_response = self.cmd_execution(cmd)
         if cmd_response['error']:
@@ -96,7 +94,7 @@ class PyNetTools:
             print(returned_output)
 
         parse = str(returned_output).split(' ', 1)
-        if self.platform.is_mac():
+        if self.platform.is_mac() or self.platform.is_linux():
             ip = parse[1].split('(')[1].split(')')[0]
             result = ip
         else:
@@ -183,17 +181,26 @@ class PyNetTools:
         self.host.update(self.mappings)
 
     def main(self):
+        if self.debug:
+            local_ip = self.get_local_ip()
+            print(f'Platform: {self.platform.name()}')
+            print(F'Own IP: {local_ip}')
+
         if self.args.list:
             self.list_input_entries()
+
         elif self.args.update:
             self.update_from_input_entries()
+
         elif self.args.show:
             content = self.host.list()
             self.print_all(*content)
+
         elif self.args.check:
             self.print_all('# Search result:')
             result = self.host.check(*self.args.check)
             self.print_all(*result)
+
         elif self.args.insert:
             self.print_all('# Insert mapping:')
             for each in self.args.insert:
@@ -205,6 +212,7 @@ class PyNetTools:
                     )
                 else:
                     self.print_all('> failed to insert ' + each)
+
         elif self.args.remove:
             self.print_all('# Remove mapping:')
             for each in self.args.remove:
@@ -213,5 +221,6 @@ class PyNetTools:
                     self.print_all('## removed ' + each + ', backup file: ' + result[1])
                 else:
                     self.print_all('## Not found ' + each)
+
         else:
             self.parser.print_help()

@@ -24,6 +24,7 @@ This project adheres to [Semantic Versioning](http://semver.org/) and [Keep a Ch
 CHANGELOG.md file created.
 "hostname_mac-example.txt" and "hostname_mac.txt" files moved to project root.
 pynettools.sh and recycle_hosts_bkp.sh created.
+crontab-example.txt created.
 
 ### Changes
 "get_ip_from_mac_addr.py" renamed to "pynettools_main.py".

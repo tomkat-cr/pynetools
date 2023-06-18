@@ -1,0 +1,7 @@
+# crontab-example.txt
+MAILTO="linux-username"
+SCRIPTS_DIR="/home/linux-username/apps"
+# PyNetTools /etc/host file update - 8 AM
+00 8 * * * sh ${SCRIPTS_DIR}/pynettools/pynettools.sh -u >/dev/null
+# PyNetTools /etc/host backup recycler - 7:30 AM
+30 7 * * * sh ${SCRIPTS_DIR}/pynettools/recycle_hosts_bkp.sh >/dev/null

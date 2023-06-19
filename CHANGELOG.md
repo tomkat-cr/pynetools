@@ -17,6 +17,13 @@ This project adheres to [Semantic Versioning](http://semver.org/) and [Keep a Ch
 ### Breaks
 
 
+## 0.1.3 (2023-06-18)
+---
+
+### New
+send_email.py and send_email.sh created.
+
+
 ## 0.1.2 (2023-06-17)
 ---
 

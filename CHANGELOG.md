@@ -17,6 +17,14 @@ This project adheres to [Semantic Versioning](http://semver.org/) and [Keep a Ch
 ### Breaks
 
 
+## 0.1.4 (2023-07-01)
+---
+
+### Change
+README.md file revised.
+".env-example" revised.
+
+
 ## 0.1.3 (2023-06-18)
 ---
 

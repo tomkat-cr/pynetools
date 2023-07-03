@@ -1,5 +1,7 @@
 # PyNetTools
 
+<p align="center"><img src="https://socialify.git.ci/tomkat-cr/pynettools/image?description=0&amp;font=Inter&amp;language=1&amp;name=1&amp;owner=1&amp;pattern=Plus&amp;stargazers=0&amp;theme=Light" alt="project-image"></p>
+
 ## Overview
 
 This is a simple networking tool in python that allows users to read from an input file with hostname and MAC address and update the system's host file accordingly. It was built to discover, map and maintain IP-Hostname mapping in a local network.
